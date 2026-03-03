@@ -1,0 +1,36 @@
+# Rust
+backend/target/
+backend/**/*.rs.bk
+backend/*.pdb
+backend/*.d
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Docker
+docker-compose.override.yml
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Debug
+*.dSYM/
+*.su
+*.idb
+*.pdb

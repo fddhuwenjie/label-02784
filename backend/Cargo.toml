@@ -1,0 +1,23 @@
+[package]
+name = "media-prompt-service"
+version = "0.1.0"
+edition = "2021"
+description = "Async microservice for LLM prompt generation pipeline"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+lapin = "2"
+mongodb = { version = "2", default-features = false, features = ["tokio-runtime"] }
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "mysql"] }
+reqwest = { version = "0.11", features = ["json", "rustls-tls"], default-features = false }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
+tokio-stream = "0.1"
+
+[profile.release]
+opt-level = 3
+lto = true
+strip = true

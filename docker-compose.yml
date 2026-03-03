@@ -1,0 +1,84 @@
+services:
+  mysql:
+    image: mysql:5.7
+    platform: linux/amd64
+    container_name: media-prompt-mysql
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "123456"
+      MYSQL_DATABASE: media_db
+      MYSQL_CHARSET: utf8
+      MYSQL_COLLATION: utf8_general_ci
+    command: >
+      --character-set-server=utf8
+      --collation-server=utf8_general_ci
+      --default-authentication-plugin=mysql_native_password
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./backend/sql/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: media-prompt-rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  mongodb:
+    image: mongo:4.0.13
+    platform: linux/amd64
+    container_name: media-prompt-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: media-prompt-backend
+    restart: unless-stopped
+    ports:
+      - "9999:9999"
+    environment:
+      APP_CONFIG_PATH: "${APP_CONFIG_PATH:-/app/config/config.demo.yaml}"
+      LLM_API_KEY: "${LLM_API_KEY:-}"
+    volumes:
+      - ./backend/config:/app/config:ro
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+
+volumes:
+  mysql-data:
+  rabbitmq-data:
+  mongodb-data:

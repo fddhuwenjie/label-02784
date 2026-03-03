@@ -1,0 +1,32 @@
+rabbitmq:
+  uri: "amqp://guest:guest@rabbitmq:5672/%2f"
+  consume_queue: "media_task_in"
+  publish_queue: "media_task_out"
+  prefetch_count: 10
+  reconnect_initial_delay_ms: 1000
+  reconnect_max_delay_ms: 30000
+
+mongodb:
+  uri: "mongodb://mongodb:27017"
+  database: "script_db"
+  collection: "scripts"
+
+mysql:
+  url: "mysql://root:123456@mysql:3306/media_db?ssl-mode=DISABLED"
+  max_connections: 20
+
+llm:
+  provider: "openai_compatible"
+  base_url: "https://api.openai.com/v1/chat/completions"
+  model: "gpt-4"
+  api_key: "${LLM_API_KEY}"
+  allow_empty_api_key: false
+  timeout_secs: 120
+  max_retries: 3
+
+concurrency:
+  max_tasks: 5
+  max_llm_requests: 10
+
+server:
+  health_port: 9999
